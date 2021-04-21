@@ -1,5 +1,8 @@
 const User = require('../models/usermodel');
 const mongoose = require('mongoose');
+const redis = require("redis");
+const e = require('express');
+const client = redis.createClient();
 
 
 exports.create = (req, res) => {
@@ -29,7 +32,10 @@ exports.create = (req, res) => {
 };
 
 
+
+
 exports.findOne = (req, res) => {
+    console.log("fetching ....");
     User.findById(req.params.id)
     .then(user => {
         if(!user) {
@@ -37,7 +43,13 @@ exports.findOne = (req, res) => {
                 message: "User not found with id " + req.params.id
             });            
         }
+        
         res.send(user);       
+        console.log(user)
+        const a=JSON.stringify(user)
+        client.setex('userdata',60,a)
+        
+        console.log('userdata')
     }).catch(err => {
         if(err.kind === 'ObjectId') {
             return res.status(404).send({
@@ -49,6 +61,17 @@ exports.findOne = (req, res) => {
         });
     });
 };
+
+exports.redis_user = (req,res)=>{
+    client.get('userdata',(err,redis_user)=>{
+if (err)console.log(err)
+else(redis_user)
+    res.send(JSON.parse(redis_user))
+    console.log(redis_user)
+    })
+}
+
+
 
 exports.findcredit = (req,res)=>{
     User.findById(req.params.id)

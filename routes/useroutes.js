@@ -5,7 +5,8 @@ const router = express.Router();
 
 router.post('/adduser', userconrollers.create);
 
-router.get('/:id', userconrollers.findOne);
+router.get('/:id', userconrollers.redis_user,userconrollers.findOne);
+
 router.post('/addc/:id',userconrollers.update);
 router.post('/subc');
 
